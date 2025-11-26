@@ -1,42 +1,20 @@
+// playwright.config.ts
+import { defineConfig } from '@playwright/test';
 
-import { defineConfig, devices } from '@playwright/test';
-import { trace } from 'console';
-import { on } from 'events';
-
-
-
-/**
- * @see https://playwright.dev/docs/test-configuration
- */
-const config = ({
-  testDir: './tests',
-  timeout: 30 * 1000,
-  expect: {
-    timeout: 60_000,  
-  },
-    reporter: [['html', { open: 'never' }]], // generates beautiful report
-
+export default defineConfig({
+  testDir: './tests',                    // ← This is the key line!
+  testMatch: '**/*.spec.ts',             // ← Finds all .spec.ts files in subfolders
+  timeout: 30_000,
+  retries: process.env.CI ? 2 : 0,       // Auto-retry in CI
+  reporter: [
+    ['html'],                            // Beautiful HTML report
+    ['junit', { outputFile: 'playwright-report/results.xml' }]
+  ],
   use: {
-    use: {
     headless: true,
     viewport: { width: 1280, height: 720 },
-    actionTimeout: 20_000,
-    navigationTimeout: 60_000,
-    video: 'retain-on-failure',
-    screenshot: 'only-on-failure',
+    actionTimeout: 10_000,
+    ignoreHTTPSErrors: true,
+    video: 'on-first-retry',
   },
-    
-    browserName: 'chromium',
-    headless: false,
-    screenshot: 'on',
-    trace: 'retain-on-failure'
-
-
-
-  },
-
-  
-
 });
-module.exports = config
-
